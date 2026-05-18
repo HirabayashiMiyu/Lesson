@@ -1,0 +1,40 @@
+name: Test Git Info Grabber
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  check-info:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. リポジトリのコード（仕様書ファイルを含む）をGitHub Actions内に持ってくる
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }} # PR元のブランチを取得
+
+      # 2. PRの「タイトル」と「説明文」をログに表示してみる
+      - name: Show PR Title and Body
+        run: |
+          echo "=== 📥 PRのタイトル ==="
+          echo "${{ github.event.pull_request.title }}"
+          echo "=== 📥 PRの説明文 ==="
+          echo "${{ github.event.pull_request.body }}"
+
+      # 3. リポジトリ内にある「元の仕様書（docs/spec.md）」の中身をログに表示してみる
+      - name: Show Original Spec
+        run: |
+          echo "=== 📥 元の仕様書（docs/spec.md） ==="
+          if [ -f "docs/spec.md" ]; then
+            cat docs/spec.md
+          else
+            echo "エラー: docs/spec.md がまだリポジトリ内に存在しません。"
+          fi
+
+      # 4. コードの「差分（Diff）」を抽出してログに表示してみる
+      - name: Show Git Diff
+        run: |
+          echo "=== 📥 ソースコードの差分（Diff） ==="
+          git fetch origin ${{ github.base_ref }}
+          git diff origin/${{ github.base_ref }}...HEAD
