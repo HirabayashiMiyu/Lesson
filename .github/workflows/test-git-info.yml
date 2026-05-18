@@ -8,11 +8,12 @@ jobs:
   check-info:
     runs-on: ubuntu-latest
     steps:
-      # 1. リポジトリのコード（仕様書ファイルを含む）をGitHub Actions内に持ってくる
+      # 【ココを修正！】fetch-depth: 0 を追加して、過去の歴史をすべて取得する
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }} # PR元のブランチを取得
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0 # ★これを入れることで、ブランチ同士の比較ができるようになります！
 
       # 2. PRの「タイトル」と「説明文」をログに表示してみる
       - name: Show PR Title and Body
@@ -33,8 +34,8 @@ jobs:
           fi
 
       # 4. コードの「差分（Diff）」を抽出してログに表示してみる
+      # （※ブランチ名が「master」のようでしたので、github.base_ref に自動で合わせる記述にしています）
       - name: Show Git Diff
         run: |
           echo "=== 📥 ソースコードの差分（Diff） ==="
-          git fetch origin ${{ github.base_ref }}
           git diff origin/${{ github.base_ref }}...HEAD
